@@ -20,15 +20,12 @@ spec:
         name: go-env
       version: "=0.0.8"
   values:
-    version: 0.0.6 # {"$imagepolicy": "go-env:go-env:tag"}
     image:
       repository: damianjaniszewski/go-env # {"$imagepolicy": "go-env:go-env:name"}
       tag: 0.0.6 # {"$imagepolicy": "go-env:go-env:tag"}
     replicaCount: 2
     service:
       enabled: true
-    env:
-      APP_VERSION: 0.0.6 # {"$imagepolicy": "go-env:go-env:tag"}
   interval: 0h0m30s
   install:
     remediation:
