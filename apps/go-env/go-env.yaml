@@ -40,7 +40,7 @@ spec:
     name: go-env
   policy:
     semver:
-      range: "<=0.0.12-100"
+      range: "<=0.0.6"
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta1
 kind: ImageRepository
@@ -63,9 +63,9 @@ spec:
   git:
     checkout:
       ref:
-        branch: env/sandbox
+        branch: demo/pge
     commit:
       author:
-        email: flux@dev.apex.pl
+        email: flux@dev.apexit.pl
         name: Flux
       messageTemplate: 'Auto-release{{range .Updated.Images}} {{ . }}{{end}} in{{range $resource, $_ := .Updated.Objects}} {{ $resource.Kind }}/{{ $resource.Name }}{{end}}'
