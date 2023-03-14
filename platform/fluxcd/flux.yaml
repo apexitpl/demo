@@ -1,0 +1,253 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: flux-system
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: flux
+  namespace: flux-system
+spec:
+  releaseName: flux
+  chart:
+    spec:
+      chart: flux2
+      sourceRef:
+        kind: HelmRepository
+        name: fluxcd-community
+        namespace: flux-system
+      version: "=>2.6.0"
+  values:
+    helmController:
+      create: true
+      serviceAccount:
+        annotations: {}
+    imageAutomationController:
+      create: true
+      serviceAccount:
+        annotations: {}
+    imageReflectorController:
+      create: true
+      serviceAccount:
+        annotations: {}
+    kustomizeController:
+      create: true
+      serviceAccount:
+        annotations: {}
+    notificationController:
+      create: true
+      serviceAccount:
+        annotations: {}
+    sourceController:
+      create: true
+      serviceAccount:
+        annotations: {}
+    policies:
+      create: false
+  interval: 0h4m4s
+  install:
+    remediation:
+      retries: 4
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: flux-sync
+  namespace: flux-system
+spec:
+  releaseName: flux-sync
+  chart:
+    spec:
+      chart: flux2-sync
+      sourceRef:
+        kind: HelmRepository
+        name: fluxcd-community
+        namespace: flux-system
+      version: "=>1.3.0"
+  values:
+    gitRepository:
+      spec:
+        interval: 0m24s
+        ref:
+          branch: env
+        secretRef:
+          name: config-repo-ssh-key
+        url: ssh://git@github.com:22/apexitpl/demo.git
+    kustomization: null
+    kustomizationlist:
+    - spec:
+        interval: 16s
+        path: ./platform
+        prune: true
+        timeout: 4m
+    - spec:
+        dependsOn:
+        - path: ./platform
+        interval: 16s
+        path: ./apps
+        prune: true
+        timeout: 4m
+    secret:
+      create: false
+  interval: 0h4m4s
+  install:
+    remediation:
+      retries: 4
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: HelmRepository
+metadata:
+  name: fluxcd-community
+  namespace: flux-system
+spec:
+  interval: 4h4m4s
+  url: https://fluxcd-community.github.io/helm-charts
+# ---
+# apiVersion: image.toolkit.fluxcd.io/v1beta1
+# kind: ImageUpdateAutomation
+# metadata:
+#   name: image-update-automation
+#   namespace: flux-system
+# spec:
+#   interval: 1m0s
+#   sourceRef:
+#     kind: GitRepository
+#     name: flux-sync
+#     namespace: flux-system
+#   git:
+#     checkout:
+#       ref:
+#         branch: env
+#     commit:
+#       author:
+#         email: flux@dev.apexit.pl
+#         name: Flux
+#       messageTemplate: 'Auto-release{{range .Updated.Images}} {{ . }}{{end}} in{{range $resource, $_ := .Updated.Objects}} {{ $resource.Kind }}/{{ $resource.Name }}{{end}}'
+# ---
+# apiVersion: image.toolkit.fluxcd.io/v1beta1
+# kind: ImagePolicy
+# metadata:
+#   name: fluxcd-source-controller
+#   namespace: flux-system
+# spec:
+#   imageRepositoryRef:
+#     name: fluxcd-source-controller
+#   policy:
+#     semver:
+#       range: ">=0.0.0-0"
+# ---
+# apiVersion: image.toolkit.fluxcd.io/v1beta1
+# kind: ImagePolicy
+# metadata:
+#   name: fluxcd-kustomize-controller
+#   namespace: flux-system
+# spec:
+#   imageRepositoryRef:
+#     name: fluxcd-kustomize-controller
+#   policy:
+#     semver:
+#       range: ">=0.0.0-0"
+# ---
+# apiVersion: image.toolkit.fluxcd.io/v1beta1
+# kind: ImagePolicy
+# metadata:
+#   name: fluxcd-helm-controller
+#   namespace: flux-system
+# spec:
+#   imageRepositoryRef:
+#     name: fluxcd-helm-controller
+#   policy:
+#     semver:
+#       range: ">=0.0.0-0"
+# ---
+# apiVersion: image.toolkit.fluxcd.io/v1beta1
+# kind: ImagePolicy
+# metadata:
+#   name: fluxcd-image-automation-controller
+#   namespace: flux-system
+# spec:
+#   imageRepositoryRef:
+#     name: fluxcd-image-automation-controller
+#   policy:
+#     semver:
+#       range: ">=0.0.0-0"
+# ---
+# apiVersion: image.toolkit.fluxcd.io/v1beta1
+# kind: ImagePolicy
+# metadata:
+#   name: fluxcd-image-reflector-controller
+#   namespace: flux-system
+# spec:
+#   imageRepositoryRef:
+#     name: fluxcd-image-reflector-controller
+#   policy:
+#     semver:
+#       range: ">=0.0.0-0"
+# ---
+# apiVersion: image.toolkit.fluxcd.io/v1beta1
+# kind: ImagePolicy
+# metadata:
+#   name: fluxcd-notification-controller
+#   namespace: flux-system
+# spec:
+#   imageRepositoryRef:
+#     name: fluxcd-notification-controller
+#   policy:
+#     semver:
+#       range: ">=0.0.0-0"
+# ---
+# apiVersion: image.toolkit.fluxcd.io/v1beta1
+# kind: ImageRepository
+# metadata:
+#   name: fluxcd-source-controller
+#   namespace: flux-system
+# spec:
+#   image: ghcr.io/fluxcd/source-controller
+#   interval: 4h4m4s
+# ---
+# apiVersion: image.toolkit.fluxcd.io/v1beta1
+# kind: ImageRepository
+# metadata:
+#   name: fluxcd-kustomize-controller
+#   namespace: flux-system
+# spec:
+#   image: ghcr.io/fluxcd/kustomize-controller
+#   interval: 4h4m4s
+# ---
+# apiVersion: image.toolkit.fluxcd.io/v1beta1
+# kind: ImageRepository
+# metadata:
+#   name: fluxcd-helm-controller
+#   namespace: flux-system
+# spec:
+#   image: ghcr.io/fluxcd/helm-controller
+#   interval: 4h4m4s
+# ---
+# apiVersion: image.toolkit.fluxcd.io/v1beta1
+# kind: ImageRepository
+# metadata:
+#   name: fluxcd-image-automation-controller
+#   namespace: flux-system
+# spec:
+#   image: ghcr.io/fluxcd/image-automation-controller
+#   interval: 4h4m4s
+# ---
+# apiVersion: image.toolkit.fluxcd.io/v1beta1
+# kind: ImageRepository
+# metadata:
+#   name: fluxcd-image-reflector-controller
+#   namespace: flux-system
+# spec:
+#   image: ghcr.io/fluxcd/image-reflector-controller
+#   interval: 4h4m4s
+# ---
+# apiVersion: image.toolkit.fluxcd.io/v1beta1
+# kind: ImageRepository
+# metadata:
+#   name: fluxcd-notification-controller
+#   namespace: flux-system
+# spec:
+#   image: ghcr.io/fluxcd/notification-controller
+#   interval: 4h4m4s
