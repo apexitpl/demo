@@ -1,0 +1,16 @@
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: go-env
+spec:
+  hosts:
+  - go-env.local
+  gateways:
+  - istio-ingress/istio-ingressgateway
+  http:
+  - route:
+    - destination:
+        host: go-env
+        port:
+          number: 80
