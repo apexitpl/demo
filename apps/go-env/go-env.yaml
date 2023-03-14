@@ -23,7 +23,7 @@ spec:
     image:
       repository: damianjaniszewski/go-env # {"$imagepolicy": "go-env:go-env:name"}
       tag: 0.0.6 # {"$imagepolicy": "go-env:go-env:tag"}
-    replicaCount: 2
+    replicaCount: 8
     service:
       enabled: true
   interval: 0h0m30s
