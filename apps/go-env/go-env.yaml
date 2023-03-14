@@ -18,7 +18,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: go-env
-      version: "=0.0.10"
+      version: ">=0.0.10"
   values:
     image:
       repository: damianjaniszewski/go-env # {"$imagepolicy": "go-env:go-env:name"}
